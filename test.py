@@ -11,6 +11,7 @@ HTML_WRAP = '''\
 <html>
   <head>
     <title>test DB</title>
+    <meta charset="UTF-8">
     <style>
       
     </style>
@@ -31,10 +32,18 @@ HTML_WRAP = '''\
               <option>male</option>
               <option>female</option>
           </select>
-      <label>     
-      
+      <label>  
       <input type="submit" value="Insert Student">
     </form>
+    <p style="color:red">%(err_A)s</p>
+    <h2>Delete Student</h2>
+    <form method=post action="/deleted">
+       <label>
+          Insert student ID <input type="text" name="id">
+      <label>
+      <input type="submit" value="Delete Student">
+    </form>
+    <p style="color:red">%(err_B)s</p>
     <h2>All Students</h2>
     %(all)s
     <h2>Genders Count</h2>
@@ -43,13 +52,17 @@ HTML_WRAP = '''\
 </html>
 '''
 
-# HTML template for the result
+# HTML templates for the results and errors
 ALL = '''\
     <div><span>%(id)s</span>. <span>%(first_name)s</span> <span>%(last_name)s</span>, <span>%(gender)s</span></div>
 '''
 GENDER_COUNT = '''\
     <div><span>%(gender)s</span>: <span>%(count)s</span></div>
 '''
+ERROR_A = ''
+
+ERROR_B = ''
+
 
 ## Request handler for main page
 def View(env, resp):
@@ -61,32 +74,60 @@ def View(env, resp):
 
     headers = [('Content-type', 'text/html')]
     resp('200 OK', headers)
-    return [HTML_WRAP % {'all': ''.join(ALL % p for p in allStudents), 'gen': ''.join(GENDER_COUNT % p for p in genderCount)}]
+    return [HTML_WRAP % {'err_A': ERROR_A, 'err_B': ERROR_B, 'all': ''.join(ALL % p for p in allStudents), 'gen': ''.join(GENDER_COUNT % p for p in genderCount)}]
 
-## Request handler for result
-def Post(env, resp):
-    
+## Insert data
+def Insert(env, resp):
+    global ERROR_A
     input = env['wsgi.input']
     length = int(env.get('CONTENT_LENGTH', 0))
     # If length is zero, post is empty - don't save it.
     if length > 0:
         postdata = input.read(length)
         fields = cgi.parse_qs(postdata)
-        first_name = fields['first_name'][0]
-        last_name = fields['last_name'][0]
-        gender = fields['gender'][0]
+        if len(fields) == 3:
+          first_name = fields['first_name'][0]
+          last_name = fields['last_name'][0]
+          gender = fields['gender'][0]
         
         # Save it in the database
-        testDB.InsertNewStudent(first_name, last_name, gender)
+          testDB.InsertNewStudent(first_name, last_name, gender)
+          ERROR_A = ''
+        else:          
+          ERROR_A += 'You have to fill in all the fields. Please, try again.'
     # 302 redirect back to the main page
     headers = [('Location', '/'),
                ('Content-type', 'text/plain')]
     resp('302 REDIRECT', headers) 
     return ['Redirecting']
 
+## Delete data
+def Delete(env, resp):
+    global ERROR_B    
+    input = env['wsgi.input']
+    length = int(env.get('CONTENT_LENGTH', 0))
+    # If length is zero, post is empty - don't save it.
+    if length > 0:
+        postdata = input.read(length)
+        fields = cgi.parse_qs(postdata)
+        if len(fields) == 1:
+          ID = int(fields['id'][0])
+                
+        # Save it in the database
+          testDB.DeleteStudent(ID)
+          ERROR_B = ''
+        else:
+          ERROR_B = 'No ID was entered.'
+    # 302 redirect back to the main page
+    headers = [('Location', '/'),
+               ('Content-type', 'text/plain')]
+    resp('302 REDIRECT', headers) 
+    return ['Redirecting'] 
+
 ## Dispatch table - maps URL prefixes to request handlers
 DISPATCH = {'': View,
-            'inserted': Post,
+            'inserted': Insert,
+            'deleted': Delete
         }
 
 ## Dispatcher forwards requests according to the DISPATCH table.

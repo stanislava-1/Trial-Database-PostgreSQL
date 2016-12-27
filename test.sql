@@ -26,7 +26,7 @@ VALUES ('Karel', 'Gott', 'male');
 -- Student's postal adresses
 
 CREATE TABLE adresses (
-	student_id serial references students(id),
+	student_id serial references students(id) on delete cascade,
 	address text,
 	city text
 );
