@@ -12,9 +12,6 @@ HTML_WRAP = '''\
   <head>
     <title>test DB</title>
     <meta charset="UTF-8">
-    <style>
-      
-    </style>
   </head>
   <body>
     <h1>Test DB</h1>
@@ -32,7 +29,15 @@ HTML_WRAP = '''\
               <option>male</option>
               <option>female</option>
           </select>
-      <label>  
+      <label>
+      <label>
+          Country
+          <input type="text" list="country" name="country">
+          <datalist id="country">
+              <option>Slovakia</option>
+              <option>Czech Republic</option>
+          </datalist>
+      <label>    
       <input type="submit" value="Insert Student">
     </form>
     <p style="color:red">%(err_A)s</p>
@@ -44,18 +49,24 @@ HTML_WRAP = '''\
       <input type="submit" value="Delete Student">
     </form>
     <p style="color:red">%(err_B)s</p>
-    <h2>All Students</h2>
-    %(all)s
-    <h2>Genders Count</h2>
-    %(gen)s
+    <h2>List of students</h2>
+    <div>%(all)s</div>
+    <h2>Number of All Students</h2>
+    <div>%(num)s</div>
+    <h2>Number of Students by Gender</h2>
+    <div>%(gen)s</div>
   </body>
 </html>
 '''
 
 # HTML templates for the results and errors
 ALL = '''\
-    <div><span>%(id)s</span>. <span>%(first_name)s</span> <span>%(last_name)s</span>, <span>%(gender)s</span></div>
+    <div><span>%(id)s</span>. <span>%(first_name)s</span> <span>%(last_name)s</span>, <span>%(gender)s</span>, <span>%(country)s</span></div>
 '''
+COUNT_ALL = '''\
+    <div><span>All students</span>: <span>%s</span></div>
+'''
+
 GENDER_COUNT = '''\
     <div><span>%(gender)s</span>: <span>%(count)s</span></div>
 '''
@@ -71,10 +82,11 @@ def View(env, resp):
     '''      
     allStudents = testDB.GetAllStudents()
     genderCount = testDB.GenderCount()
+    countAll = testDB.CountAll()
 
     headers = [('Content-type', 'text/html')]
     resp('200 OK', headers)
-    return [HTML_WRAP % {'err_A': ERROR_A, 'err_B': ERROR_B, 'all': ''.join(ALL % p for p in allStudents), 'gen': ''.join(GENDER_COUNT % p for p in genderCount)}]
+    return [HTML_WRAP % {'err_A': ERROR_A, 'err_B': ERROR_B, 'all': ''.join(ALL % p for p in allStudents), 'num': COUNT_ALL % countAll,'gen': ''.join(GENDER_COUNT % p for p in genderCount)}]
 
 ## Insert data
 def Insert(env, resp):
@@ -85,13 +97,14 @@ def Insert(env, resp):
     if length > 0:
         postdata = input.read(length)
         fields = cgi.parse_qs(postdata)
-        if len(fields) == 3:
+        if len(fields) == 4:
           first_name = fields['first_name'][0]
           last_name = fields['last_name'][0]
           gender = fields['gender'][0]
+          country = fields['country'][0]
         
-        # Save it in the database
-          testDB.InsertNewStudent(first_name, last_name, gender)
+          # Save it in the database
+          testDB.InsertNewStudent(first_name, last_name, gender, country)
           ERROR_A = ''
         else:          
           ERROR_A += 'You have to fill in all the fields. Please, try again.'
@@ -106,16 +119,19 @@ def Delete(env, resp):
     global ERROR_B    
     input = env['wsgi.input']
     length = int(env.get('CONTENT_LENGTH', 0))
-    # If length is zero, post is empty - don't save it.
+   
     if length > 0:
         postdata = input.read(length)
         fields = cgi.parse_qs(postdata)
         if len(fields) == 1:
           ID = int(fields['id'][0])
-                
-        # Save it in the database
-          testDB.DeleteStudent(ID)
-          ERROR_B = ''
+          # check if the id exists in the DB 
+          if testDB.IsInTable(ID):      
+            # Save it in the database
+            testDB.DeleteStudent(ID)
+            ERROR_B = ''
+          else:
+            ERROR_B = 'Student with submitted ID is not in this database.'
         else:
           ERROR_B = 'No ID was entered.'
     # 302 redirect back to the main page
