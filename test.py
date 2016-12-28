@@ -32,11 +32,7 @@ HTML_WRAP = '''\
       <label>
       <label>
           Country
-          <input type="text" list="country" name="country">
-          <datalist id="country">
-              <option>Slovakia</option>
-              <option>Czech Republic</option>
-          </datalist>
+          <input type="text" name="country">
       <label>    
       <input type="submit" value="Insert Student">
     </form>
@@ -54,7 +50,9 @@ HTML_WRAP = '''\
     <h2>Number of All Students</h2>
     <div>%(num)s</div>
     <h2>Number of Students by Gender</h2>
-    <div>%(gen)s</div>
+    <div>%(gender)s</div>
+    <h2>Number of Students by Country</h2>
+    <div>%(country)s</div>
   </body>
 </html>
 '''
@@ -70,6 +68,10 @@ COUNT_ALL = '''\
 GENDER_COUNT = '''\
     <div><span>%(gender)s</span>: <span>%(count)s</span></div>
 '''
+COUNTRY_COUNT = '''\
+    <div><span>%(country)s</span>: <span>%(count)s</span></div>
+'''
+
 ERROR_A = ''
 
 ERROR_B = ''
@@ -77,16 +79,20 @@ ERROR_B = ''
 
 ## Request handler for main page
 def View(env, resp):
-    '''
-    View is the 'main page'
-    '''      
     allStudents = testDB.GetAllStudents()
-    genderCount = testDB.GenderCount()
     countAll = testDB.CountAll()
+    genderCount = testDB.GenderCount()
+    countryCount = testDB.CountryCount()
 
     headers = [('Content-type', 'text/html')]
     resp('200 OK', headers)
-    return [HTML_WRAP % {'err_A': ERROR_A, 'err_B': ERROR_B, 'all': ''.join(ALL % p for p in allStudents), 'num': COUNT_ALL % countAll,'gen': ''.join(GENDER_COUNT % p for p in genderCount)}]
+
+    return [HTML_WRAP % {'err_A': ERROR_A, 
+                         'err_B': ERROR_B, 
+                         'all': ''.join(ALL % p for p in allStudents), 
+                         'num': COUNT_ALL % countAll,
+                         'gender': ''.join(GENDER_COUNT % p for p in genderCount),
+                         'country': ''.join(COUNTRY_COUNT % p for p in countryCount)}]
 
 ## Insert data
 def Insert(env, resp):
@@ -106,8 +112,9 @@ def Insert(env, resp):
           # Save it in the database
           testDB.InsertNewStudent(first_name, last_name, gender, country)
           ERROR_A = ''
-        else:          
-          ERROR_A += 'You have to fill in all the fields. Please, try again.'
+        else:
+          if ERROR_A == '':          
+            ERROR_A += 'You have to fill in all the fields. Please, try again.'
     # 302 redirect back to the main page
     headers = [('Location', '/'),
                ('Content-type', 'text/plain')]
@@ -124,10 +131,10 @@ def Delete(env, resp):
         postdata = input.read(length)
         fields = cgi.parse_qs(postdata)
         if len(fields) == 1:
-          ID = int(fields['id'][0])
-          # check if the id exists in the DB 
-          if testDB.IsInTable(ID):      
-            # Save it in the database
+          ID = fields['id'][0]
+          # check if the id contains only digits and is in the DB
+          if ID.isdigit() and testDB.IsInTable(ID):
+            # delete record with the ID
             testDB.DeleteStudent(ID)
             ERROR_B = ''
           else:

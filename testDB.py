@@ -57,6 +57,15 @@ def GenderCount():
     DB.close()
     return genderCount
 
+# Count how many students come from different countries
+def CountryCount():
+    DB = psycopg2.connect("dbname=test")
+    c = DB.cursor()
+    c.execute("select country, count(*) as c from students group by country order by c desc")
+    countryCount = ({'country': str(row[0]), 'count': str(row[1])} for row in c.fetchall())
+    DB.close()
+    return countryCount
+
 # Show only data of students of the selected gender (male or female) from the table students
 # def StudentsByGender(gender):
 #     DB = psycopg2.connect("dbname=test")
