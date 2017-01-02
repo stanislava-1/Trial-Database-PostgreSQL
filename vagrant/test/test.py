@@ -2,7 +2,7 @@
 
 import testDB
 
-# Other modules used to run a web server.
+# Modules used to run a web server.
 import cgi
 from wsgiref.simple_server import make_server
 from wsgiref import util
@@ -16,9 +16,15 @@ HTML_WRAP = '''\
     <meta charset="UTF-8">
     <style>
       body {margin: 0;}
-      #container {padding: 0 20px;}
-      h1, h2 {font-family: "Arial", Times New Roman;}
-      h1 {color: white; background-color: grey; margin: 0; padding: 20px}
+      h1, h2, h3 {font-family: "Arial", Times New Roman;}      
+      h1 {color: white; background-color: grey; margin: 0; padding: 20px;}
+      h2 {margin: 0; padding: 10px; background-color: #a5d6a7}
+      h3 {margin-top: 0}
+      .content {padding: 20px;} 
+      .part {height: 180px; display: inline-block; vertical-align: top; margin: 10px 10px 0 0; 
+             padding: 15px; background-color: #ddd;}
+      .col {display: inline-block; vertical-align: top; margin: 10px 40px 0 0;}
+      .part-stat {margin-bottom: 15px;}
       input, select {margin-bottom: 7px;}
       table {border-collapse: collapse;}
       td {padding-right: 20px;}
@@ -30,132 +36,151 @@ HTML_WRAP = '''\
   </head>
   <body>
     <h1>Test DB - Database of Students</h1>
-    <div id="container">
-      <section>
-        <h2>Insert New Student</h2>
-        <form method=post action="/inserted">
-          <label>
-              First Name: <input type="text" name="first_name">
-          </label><br>
-          <label>
-              Last Name: <input type="text" name="last_name">
-          </label><br>
-          <label>
-              Gender: 
-              <select type="text" name="gender">
-                  <option>male</option>
-                  <option>female</option>
-              </select>
-          </label><br>
-          <label>
-              Country:
-              <input type="text" name="country">
-          </label><br>    
-          <input type="submit" value="Insert Student">
-        </form>
-        <p style="color:red">%(err_A)s</p>
-      </section>
-      <section>
-        <h2>Delete Student</h2>
-        <form method=post action="/deleted">
-           <label>
-              Insert ID of a student you want to delete:
-              <input type="text" name="id" class="id">
-          </label><br>
-          <input type="submit" value="Delete Student">
-        </form>
-        <p style="color:red">%(err_B)s</p>
-      </section>
-      <section>
-        <h2>Enrol Student for a Course</h2>
-        <form method=post action="/enrolled">
-           <label>
-              Insert ID of a student you want to enrol for a course:
-              <input type="text" name="student" class="id">
-          </label><br>
-          <label>
-              Select Course:
-              <select type="text" name="course">
-                  <option>C001</option>
-                  <option>C002</option>
-                  <option>C003</option>
-                  <option>C004</option>
-                  <option>C005</option>
-                  <option>C006</option>
-                  <option>C007</option>
-                  <option>C008</option>
-                  <option>C009</option>
-                  <option>C010</option>
-                  <option>C011</option>
-              </select>
-          </label><br>
-          <input type="submit" value="Enrol">
-        </form>
-        <p style="color:red">%(err_C)s</p>
-      </section>
-      <section>
-        <h2>Update Student's Data</h2>
-        <form method=post action="/updated">
-           <label>
-              Insert ID of a student you want to update:
-              <input type="text" name="stud_ID" class="id">
-          </label><br>
-          <label>
-              Select what kind of data you want to update:
-              <select type="text" name="column">
-                  <option value="first_name">First Name</option>
-                  <option value="last_name">Last Name</option>
-                  <option value="country">Country</option>
-              </select>
-          </label><br>
-          <label>
-              Enter new value:
-              <input type="text" name="new_value">
-          </label><br>
-          <input type="submit" value="Update">
-        </form>
-        <p style="color:red">%(err_D)s</p>
-      </section>
-      <section>
+    
+      <section id="DB-all">
         <h2>List of students</h2>
-        <table>
-          <tr class="b">
-            <td class="ID">ID</td>
-            <td>First Name</td>
-            <td>Last Name</td>
-            <td>Gender</td>
-            <td>Country</td>
-            <td>Courses</td>
-          </tr>
-          %(all)s
-        </table>
+        <section class="content">
+          <table>
+            <tr class="b">
+              <td class="ID">ID</td>
+              <td>First Name</td>
+              <td>Last Name</td>
+              <td>Gender</td>
+              <td>Country</td>
+              <td>Courses</td>
+            </tr>
+            %(all)s
+          </table>
+        </section>
       </section>
-      <section>    
-        <h2>Number of All Students</h2>
-        <p>%(num)s</p>
+
+      <section id="DB-manipulation">
+        <h2>Database Manipulation</h2>
+        <section class="content">   
+          <section class="part">
+            <h3>Insert New Student</h2>
+            <form method=post action="/inserted">
+              <label>
+                  First Name: <input type="text" name="first_name">
+              </label><br>
+              <label>
+                  Last Name: <input type="text" name="last_name">
+              </label><br>
+              <label>
+                  Gender: 
+                  <select type="text" name="gender">
+                      <option>male</option>
+                      <option>female</option>
+                  </select>
+              </label><br>
+              <label>
+                  Country:
+                  <input type="text" name="country">
+              </label><br>    
+              <input type="submit" value="Insert Student">
+            </form>
+            <p style="color:red">%(err_A)s</p>
+          </section>
+          <section class="part">
+            <h3>Delete Student</h2>
+            <form method=post action="/deleted">
+               <label>
+                  Insert ID of a student you want to delete:
+                  <input type="text" name="id" class="id">
+              </label><br>
+              <input type="submit" value="Delete Student">
+            </form>
+            <p style="color:red">%(err_B)s</p>
+          </section>
+          <section class="part">
+            <h3>Enrol Student for a Course</h2>
+            <form method=post action="/enrolled">
+               <label>
+                  Insert ID of a student you want to enrol for a course:
+                  <input type="text" name="student" class="id">
+              </label><br>
+              <label>
+                  Select Course:
+                  <select type="text" name="course">
+                      <option>C001</option>
+                      <option>C002</option>
+                      <option>C003</option>
+                      <option>C004</option>
+                      <option>C005</option>
+                      <option>C006</option>
+                      <option>C007</option>
+                      <option>C008</option>
+                      <option>C009</option>
+                      <option>C010</option>
+                      <option>C011</option>
+                  </select>
+              </label><br>
+              <input type="submit" value="Enrol">
+            </form>
+            <p style="color:red">%(err_C)s</p>
+          </section>
+          <section class="part">
+            <h3>Update Student's Data</h2>
+            <form method=post action="/updated">
+               <label>
+                  Insert ID of a student you want to update:
+                  <input type="text" name="stud_ID" class="id">
+              </label><br>
+              <label>
+                  Select what kind of data you want to update:
+                  <select type="text" name="column">
+                      <option value="first_name">First Name</option>
+                      <option value="last_name">Last Name</option>
+                      <option value="country">Country</option>
+                  </select>
+              </label><br>
+              <label>
+                  Enter new value:
+                  <input type="text" name="new_value">
+              </label><br>
+              <input type="submit" value="Update">
+            </form>
+            <p style="color:red">%(err_D)s</p>
+          </section>
+        </section>
       </section>
-      <section>
-        <h2>Number of Students by Gender</h2>
-        <table>
-          <tr class="b"><td>Gender</td><td>Students</td></tr>
-          %(gender)s
-        </table>
+      
+      <section id="DB-statistics">
+        <h2>Database Statistics</h2>
+        <section class="content">
+          <div class="col">
+            <section class="part-stat">    
+              <h3>Number of All Students</h3>
+              <p>%(num)s</p>
+            </section>
+          </div>
+          <div class="col">
+            <section class="part-stat">
+              <h3>Number of Students by Gender</h3>
+              <table>
+                <tr class="b"><td>Gender</td><td>Students</td></tr>
+                %(gender)s
+              </table>
+            </section>          
+            <section class="part-stat">
+              <h3>Number of Students by Country</h3>
+              <table>
+                <tr class="b"><td>Country</td><td>Students</td></tr>
+                %(country)s
+              </table>
+            </section>
+          </div>
+          <div class="col">
+            <section class="part-stat">
+              <h3>Number of Students Enrolled for Courses</h3>
+              <table>
+                <tr class="b"><td>Courses</td><td>Students</td></tr>
+                %(courses)s
+              </table>
+            </section>
+          </div>
+        </section>
       </section>
-      <section>
-        <h2>Number of Students by Country</h2>
-        <table>
-          <tr class="b"><td>Country</td><td>Students</td></tr>
-          %(country)s
-        </table>
-      </section>
-      <section>
-        <h2>Number of Students Enrolled for Courses</h2>
-        <table>
-          <tr class="b"><td>Courses</td><td>Students</td></tr>
-          %(courses)s
-        </table>
-      </section>
-   </div> 
   </body>
 </html>
 '''
@@ -205,15 +230,15 @@ def View(env, resp):
     headers = [('Content-type', 'text/html')]
     resp('200 OK', headers)
 
-    return [HTML_WRAP % {'err_A': ERROR_A, 
-                         'err_B': ERROR_B,
-                         'err_C': ERROR_C,
-                         'err_D': ERROR_D,
-                         'all': ''.join(ALL % p for p in allStudents), 
+    return [HTML_WRAP % {'all': ''.join(ALL % p for p in allStudents), 
                          'num': COUNT_ALL % countAll,
                          'gender': ''.join(GENDER_COUNT % p for p in countGender),
                          'country': ''.join(COUNTRY_COUNT % p for p in countCountry),
-                         'courses': ''.join(ENROLMENTS_COUNT % p for p in countEnrolments)}]
+                         'courses': ''.join(ENROLMENTS_COUNT % p for p in countEnrolments),
+                         'err_A': ERROR_A, 
+                         'err_B': ERROR_B,
+                         'err_C': ERROR_C,
+                         'err_D': ERROR_D}]
 
 ## Insert student's data to the table students
 def Insert(env, resp):
