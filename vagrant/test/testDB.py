@@ -7,10 +7,12 @@ DB = []
 def GetAllStudents():
     DB = psycopg2.connect("dbname=test")
     c = DB.cursor()
-    c.execute("select students.*, enrolments.course_id \
+    c.execute("select students.*, courses.name \
                from students \
                left join enrolments \
                on students.id=enrolments.student_id \
+               join courses\
+               on enrolments.course_id=courses.id \
                order by students.id")
     result = c.fetchall()
     allStudents = ({'ID': str(row[0]), 
@@ -19,20 +21,24 @@ def GetAllStudents():
                     'gender': str(row[3]), 
                     'country': str(row[4]),
                     'courses': [str(row[5])]} for row in result)
+    # Count rows:
     r = 0
     for row in result:
         r += 1
+
     DB.close()
+
+    # Number of rows is higher than number of students, becaouse students are enrolled for
+    # more than one course. Give all courses of one student into one row:
     allStudents_grouped = []
     allStudents_grouped.append(allStudents.next()) 
     for i in range(1, r):
         last_row = allStudents_grouped[-1]
-        crs_list = last_row['courses']
+        crs_list = last_row['courses'] 
         evaluated = allStudents.next()        
         if evaluated['ID'] == last_row['ID']:
             crs_list += evaluated['courses']
         else:
-            crs_list.sort()
             last_row['courses'] = (', ').join(crs_list)            
             allStudents_grouped.append(evaluated)
     allStudents_grouped[-1]['courses'] = (', ').join(allStudents_grouped[-1]['courses'])
