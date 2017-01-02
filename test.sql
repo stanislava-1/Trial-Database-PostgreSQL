@@ -55,7 +55,7 @@ INSERT INTO courses VALUES ('C002', 'Mathematics', 'Albert Einzwei');
 
 INSERT INTO courses VALUES ('C003', 'Computer Science', 'Ján Kocka');
 
-INSERT INTO courses VALUES ('C004', 'Slovak Lanquage', 'Anna Bystrická');
+INSERT INTO courses VALUES ('C004', 'Slovak Language', 'Anna Bystrická');
 
 INSERT INTO courses VALUES ('C005', 'Chemistry', 'Zlatica Uhlíková');
 
