@@ -29,8 +29,9 @@ HTML_WRAP = '''\
       table {border-collapse: collapse;}
       td {padding-right: 20px;}
       td, tr {border-bottom: 1px solid #ddd;}
-      .b {font-weight: bold}
-      .ID {text-align: right}
+      .b {font-weight: bold;}
+      .ID {text-align: right;}
+      .number {text-align: center;}
       .id {width: 30px;}
     </style>
   </head>
@@ -40,6 +41,18 @@ HTML_WRAP = '''\
       <section id="DB-all">
         <h2>List of students</h2>
         <section class="content">
+          <form method="post" action="/ordered">
+            <label>
+              <b>Order by:</b> 
+              <select type="text" name="order-by">
+                <option value="students.id">ID</option>
+                <option value="students.last_name">Last Name</option>
+                <option value="students.gender">Gender</option>
+                <option value="students.country">Country</option>
+              </select>
+            </label>
+            <input type="submit" value="Order">
+          </form><br>
           <table>
             <tr class="b">
               <td class="ID">ID</td>
@@ -102,17 +115,17 @@ HTML_WRAP = '''\
               <label>
                   Select Course:
                   <select type="text" name="course">
-                      <option>C001</option>
-                      <option>C002</option>
-                      <option>C003</option>
-                      <option>C004</option>
-                      <option>C005</option>
-                      <option>C006</option>
-                      <option>C007</option>
-                      <option>C008</option>
-                      <option>C009</option>
-                      <option>C010</option>
-                      <option>C011</option>
+                      <option>C001-History</option>
+                      <option>C002-Mathematics</option>
+                      <option>C003-Computer Science</option>
+                      <option>C004-Slovak Language</option>
+                      <option>C005-Chemistry</option>
+                      <option>C006-Physics</option>
+                      <option>C007-English Language</option>
+                      <option>C008-Journalism</option>
+                      <option>C009-Painting</option>
+                      <option>C010-Music Theory</option>
+                      <option>C011-Creative Writing</option>
                   </select>
               </label><br>
               <input type="submit" value="Enrol">
@@ -174,7 +187,7 @@ HTML_WRAP = '''\
             <section class="part-stat">
               <h3>Number of Students Enrolled for Courses</h3>
               <table>
-                <tr class="b"><td>Courses</td><td>Students</td></tr>
+                <tr class="b"><td>Course</td><td>Students</td></tr>
                 %(courses)s
               </table>
             </section>
@@ -201,13 +214,13 @@ COUNT_ALL = '''\
 '''
 
 GENDER_COUNT = '''\
-    <tr><td>%(gender)s:</td> <td>%(count)s</td></tr>
+    <tr><td>%(gender)s:</td> <td class="number">%(count)s</td></tr>
 '''
 COUNTRY_COUNT = '''\
-    <tr><td>%(country)s:</td> <td>%(count)s</td></tr>
+    <tr><td>%(country)s:</td> <td class="number">%(count)s</td></tr>
 '''
 ENROLMENTS_COUNT = '''\
-    <tr><td>%(crs_name)s:</td> <td>%(enrl_count)s</td></tr>
+    <tr><td>%(crs_name)s:</td> <td class="number">%(enrl_count)s</td></tr>
 '''
 
 ERROR_A = ''
@@ -218,10 +231,13 @@ ERROR_C = ''
 
 ERROR_D = ''
 
+orderBy = "students.id"
 
-## Request handler for main page
+# Request handler for main page
 def View(env, resp):
-    allStudents = testDB.GetAllStudents()
+    
+    allStudents = testDB.GetAllStudents(orderBy)
+    
     countAll = testDB.CountAll()
     countGender = testDB.CountGender()
     countCountry = testDB.CountCountry()
@@ -240,7 +256,24 @@ def View(env, resp):
                          'err_C': ERROR_C,
                          'err_D': ERROR_D}]
 
-## Insert student's data to the table students
+# Order list of students by selected column
+def Order(env, resp):
+    global orderBy
+    input = env['wsgi.input']
+    length = int(env.get('CONTENT_LENGTH', 0))
+
+    postdata = input.read(length)
+    fields = cgi.parse_qs(postdata)
+    
+    orderBy = fields['order-by'][0]
+
+    # 302 redirect back to the main page
+    headers = [('Location', '/'),
+               ('Content-type', 'text/plain')]
+    resp('302 REDIRECT', headers) 
+    return ['Redirecting']
+
+# Insert student's data to the table students
 def Insert(env, resp):
     global ERROR_A
     input = env['wsgi.input']
@@ -267,7 +300,7 @@ def Insert(env, resp):
     resp('302 REDIRECT', headers) 
     return ['Redirecting']
 
-## Delete student's data from database
+# Delete student's data from database
 def Delete(env, resp):
     global ERROR_B    
     input = env['wsgi.input']
@@ -293,7 +326,7 @@ def Delete(env, resp):
     resp('302 REDIRECT', headers) 
     return ['Redirecting'] 
 
-## Insert student's enrolment to the table enrolments
+# Insert student's enrolment to the table enrolments
 def Enrol(env, resp):
     global ERROR_C    
     input = env['wsgi.input']
@@ -304,7 +337,7 @@ def Enrol(env, resp):
         fields = cgi.parse_qs(postdata)
         if len(fields) == 2:
           student_ID = fields['student'][0]
-          course = fields['course'][0]
+          course = fields['course'][0][0:4]
           # check if the id contains only digits and is in the DB
           if student_ID.isdigit() and testDB.IsInTable(student_ID):
             # insert data
@@ -352,8 +385,9 @@ def Update(env, resp):
   return ['Redirecting'] 
 
 
-## Dispatch table - maps URL prefixes to request handlers
+# Dispatch table - maps URL prefixes to request handlers
 DISPATCH = {'': View,
+            'ordered': Order,
             'inserted': Insert,
             'deleted': Delete,
             'enrolled': Enrol,
@@ -373,7 +407,7 @@ def Dispatcher(env, resp):
         return ['Not Found: ' + page]
 
 
-# Run this bad server only on localhost!
+# Run this server on localhost
 httpd = make_server('', 8000, Dispatcher)
 print "Serving HTTP on port 8000..."
 httpd.serve_forever()

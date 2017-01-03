@@ -3,8 +3,8 @@ import psycopg2
 ## Database connection
 DB = []
 
-# Show all sutudents data from the table students
-def GetAllStudents():
+# Show all sutudents data from the table students and data about their course enrolments
+def GetAllStudents(orderBy):
     DB = psycopg2.connect("dbname=test")
     c = DB.cursor()
     c.execute("select students.*, courses.name \
@@ -13,7 +13,7 @@ def GetAllStudents():
                on students.id=enrolments.student_id \
                join courses\
                on enrolments.course_id=courses.id \
-               order by students.id")
+               order by %s" % orderBy)
     result = c.fetchall()
     allStudents = ({'ID': str(row[0]), 
                     'first_name': str(row[1]), 
@@ -28,20 +28,23 @@ def GetAllStudents():
 
     DB.close()
 
-    # Number of rows is higher than number of students, becaouse students are enrolled for
+    # Number of rows is now higher than number of students, becaouse students are enrolled for
     # more than one course. Give all courses of one student into one row:
     allStudents_grouped = []
     allStudents_grouped.append(allStudents.next()) 
     for i in range(1, r):
-        last_row = allStudents_grouped[-1]
-        crs_list = last_row['courses'] 
-        evaluated = allStudents.next()        
-        if evaluated['ID'] == last_row['ID']:
-            crs_list += evaluated['courses']
-        else:
-            last_row['courses'] = (', ').join(crs_list)            
+        evaluated = allStudents.next()
+        found = False
+        for row in allStudents_grouped:        
+            if evaluated['ID'] == row['ID']:
+                row['courses'] += evaluated['courses']
+                found = True
+                break
+        if not found:
             allStudents_grouped.append(evaluated)
-    allStudents_grouped[-1]['courses'] = (', ').join(allStudents_grouped[-1]['courses'])
+        found = False
+    for row in allStudents_grouped:
+        row['courses'] = (', ').join(row['courses'])    
     return allStudents_grouped
 
 # Insert new student to the table students
@@ -125,7 +128,8 @@ def CountEnrolments():
                on courses.id=enrolments.course_id \
                group by courses.name \
                order by c desc")
-    countEnrolments = ({'crs_name': str(row[0]), 'enrl_count': str(row[1])} for row in c.fetchall())
+    countEnrolments = ({'crs_name': str(row[0]), 
+                        'enrl_count': str(row[1])} for row in c.fetchall())
     DB.close()
     return countEnrolments
 
