@@ -7,7 +7,9 @@ DB = []
 def GetAllStudents(orderBy):
     DB = psycopg2.connect("dbname=test")
     c = DB.cursor()
-    c.execute("select students.*, courses.name \
+    c.execute("select students.id, students.first_name, students.last_name, \
+                      date_part('year', age(students.birthday)), students.gender, \
+                      students.country, courses.name \
                from students \
                left join enrolments \
                on students.id=enrolments.student_id \
@@ -17,10 +19,11 @@ def GetAllStudents(orderBy):
     result = c.fetchall()
     allStudents = ({'ID': str(row[0]), 
                     'first_name': str(row[1]), 
-                    'last_name': str(row[2]), 
-                    'gender': str(row[3]), 
-                    'country': str(row[4]),
-                    'courses': [str(row[5])]} for row in result)
+                    'last_name': str(row[2]),
+                    'age': int(row[3]),
+                    'gender': str(row[4]), 
+                    'country': str(row[5]),
+                    'courses': [str(row[6])]} for row in result)
     # Count rows:
     r = 0
     for row in result:

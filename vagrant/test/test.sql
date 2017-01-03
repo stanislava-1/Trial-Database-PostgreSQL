@@ -4,42 +4,43 @@ CREATE TABLE students (
 	id serial primary key,
 	first_name text,
 	last_name text,
+	birthday date,
 	gender text,
 	country text
 );
 
-INSERT INTO students (first_name, last_name, gender, country) 
-VALUES ('Jožko', 'Mrkvička', 'male', 'Slovakia');
+INSERT INTO students (first_name, last_name, birthday, gender, country) 
+VALUES ('Jožko', 'Mrkvička', '1980-02-21', 'male', 'Slovakia');
 
-INSERT INTO students (first_name, last_name, gender, country) 
-VALUES ('Martinko', 'Klingáčik', 'male', 'Slovakia');
+INSERT INTO students (first_name, last_name, birthday, gender, country)
+VALUES ('Martinko', 'Klingáčik', '1965-08-08', 'male', 'Slovakia');
 
-INSERT INTO students (first_name, last_name, gender, country) 
-VALUES ('Svatopluk', 'Kuřátko', 'male', 'Czech Republic');
+INSERT INTO students (first_name, last_name, birthday, gender, country) 
+VALUES ('Svatopluk', 'Kuřátko', '1974-04-15', 'male', 'Czech Republic');
 
-INSERT INTO students (first_name, last_name, gender, country) 
-VALUES ('Ruženka', 'Šípková', 'female', 'Slovakia');
+INSERT INTO students (first_name, last_name, birthday, gender, country)
+VALUES ('Ruženka', 'Šípková', '1997-07-03', 'female', 'Slovakia');
 
-INSERT INTO students (first_name, last_name, gender, country) 
-VALUES ('Vendelín', 'Fazuľa', 'male', 'Slovakia');
+INSERT INTO students (first_name, last_name, birthday, gender, country)
+VALUES ('Vendelín', 'Fazuľa', '1990-10-18', 'male', 'Slovakia');
 
-INSERT INTO students (first_name, last_name, gender, country) 
-VALUES ('Josef', 'Švejk', 'male', 'Czech Republic');
+INSERT INTO students (first_name, last_name, birthday, gender, country)
+VALUES ('Josef', 'Švejk', '1961-01-11', 'male', 'Czech Republic');
 
-INSERT INTO students (first_name, last_name, gender, country) 
-VALUES ('Maruška', 'Jahodová', 'female', 'Slovakia');
+INSERT INTO students (first_name, last_name, birthday, gender, country)
+VALUES ('Maruška', 'Jahodová', '1996-12-24', 'female', 'Slovakia');
 
-INSERT INTO students (first_name, last_name, gender, country) 
-VALUES ('Sandokan', 'Dlhovlasý', 'male', 'Malaysia');
+INSERT INTO students (first_name, last_name, birthday, gender, country)
+VALUES ('Sandokan', 'Dlhovlasý', '1985-05-06', 'male', 'Malaysia');
 
-INSERT INTO students (first_name, last_name, gender, country) 
-VALUES ('Pipi', 'Dlhopančuchová', 'female', 'Sweden');
+INSERT INTO students (first_name, last_name, birthday, gender, country)
+VALUES ('Pipi', 'Pančuchová', '1998-08-30', 'female', 'Sweden');
 
-INSERT INTO students (first_name, last_name, gender, country) 
-VALUES ('Janka', 'Tárajka', 'female', 'Slovakia');
+INSERT INTO students (first_name, last_name, birthday, gender, country)
+VALUES ('Janka', 'Tárajka', '1977-03-17', 'female', 'Slovakia');
 
-INSERT INTO students (first_name, last_name, gender, country) 
-VALUES ('Janko', 'Hraško', 'male', 'Slovakia');
+INSERT INTO students (first_name, last_name, birthday, gender, country)
+VALUES ('Janko', 'Hraško', '1987-09-12', 'male', 'Slovakia');
 
 -- Information about courses
 
@@ -95,14 +96,15 @@ INSERT INTO enrolments VALUES (5, 'C011');
 INSERT INTO enrolments VALUES (6, 'C001');
 INSERT INTO enrolments VALUES (6, 'C009');
 INSERT INTO enrolments VALUES (6, 'C010');
+INSERT INTO enrolments VALUES (6, 'C011');
 INSERT INTO enrolments VALUES (7, 'C001');
 INSERT INTO enrolments VALUES (7, 'C004');
 INSERT INTO enrolments VALUES (8, 'C005');
 INSERT INTO enrolments VALUES (8, 'C006');
 INSERT INTO enrolments VALUES (8, 'C007');
 INSERT INTO enrolments VALUES (9, 'C002');
+INSERT INTO enrolments VALUES (9, 'C003');
 INSERT INTO enrolments VALUES (9, 'C005');
-INSERT INTO enrolments VALUES (9, 'C006');
 INSERT INTO enrolments VALUES (10, 'C007');
 INSERT INTO enrolments VALUES (10, 'C009');
 INSERT INTO enrolments VALUES (11, 'C008');

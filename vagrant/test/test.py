@@ -47,6 +47,7 @@ HTML_WRAP = '''\
               <select name="order-by">
                 <option value="students.id">ID</option>
                 <option value="students.last_name">Last Name</option>
+                <option value="students.birthday">Age</option>
                 <option value="students.gender">Gender</option>
                 <option value="students.country">Country</option>
               </select>
@@ -58,6 +59,7 @@ HTML_WRAP = '''\
               <td class="ID">ID</td>
               <td>First Name</td>
               <td>Last Name</td>
+              <td>Age</td>
               <td>Gender</td>
               <td>Country</td>
               <td>Courses</td>
@@ -204,6 +206,7 @@ ALL = '''\
         <td class="ID">%(ID)s</td>
         <td>%(first_name)s</td>
         <td>%(last_name)s</td>
+        <td>%(age)s</td>
         <td>%(gender)s</td>
         <td>%(country)s</td>
         <td>%(courses)s</td>

@@ -1,1 +1,1 @@
-{"virtualbox":{"/vagrant":{"guestpath":"/vagrant","hostpath":"C:/Users/kocalkova/OneDrive/sql/vagrant","disabled":false,"__vagrantfile":true}}}
+{"virtualbox":{"/vagrant":{"guestpath":"/vagrant","hostpath":"C:/Users/kocalkova/OneDrive/sql/my-database/vagrant","disabled":false,"__vagrantfile":true}}}
