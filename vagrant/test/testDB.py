@@ -11,7 +11,7 @@ def GetAllStudents(orderBy):
                from students \
                left join enrolments \
                on students.id=enrolments.student_id \
-               join courses\
+               left join courses\
                on enrolments.course_id=courses.id \
                order by %s" % orderBy)
     result = c.fetchall()

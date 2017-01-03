@@ -44,7 +44,7 @@ HTML_WRAP = '''\
           <form method="post" action="/ordered">
             <label>
               <b>Order by:</b> 
-              <select type="text" name="order-by">
+              <select name="order-by">
                 <option value="students.id">ID</option>
                 <option value="students.last_name">Last Name</option>
                 <option value="students.gender">Gender</option>
@@ -235,7 +235,7 @@ orderBy = "students.id"
 
 # Request handler for main page
 def View(env, resp):
-    
+    global allStudents
     allStudents = testDB.GetAllStudents(orderBy)
     
     countAll = testDB.CountAll()
@@ -278,22 +278,20 @@ def Insert(env, resp):
     global ERROR_A
     input = env['wsgi.input']
     length = int(env.get('CONTENT_LENGTH', 0))
-    # If length is zero, post is empty - don't save it.
-    if length > 0:
-        postdata = input.read(length)
-        fields = cgi.parse_qs(postdata)
-        if len(fields) == 4:
-          first_name = fields['first_name'][0]
-          last_name = fields['last_name'][0]
-          gender = fields['gender'][0]
-          country = fields['country'][0]
-        
-          # Save it in the database
-          testDB.InsertNewStudent(first_name, last_name, gender, country)
-          ERROR_A = ''
-        else:
-          if ERROR_A == '':          
-            ERROR_A += 'You have to fill in all the fields. Please, try again.'
+    postdata = input.read(length)
+    fields = cgi.parse_qs(postdata)
+    
+    if len(fields) == 4:
+      first_name = fields['first_name'][0]
+      last_name = fields['last_name'][0]
+      gender = fields['gender'][0]
+      country = fields['country'][0]    
+      # Save new record in the database
+      testDB.InsertNewStudent(first_name, last_name, gender, country)
+      ERROR_A = ''
+    else:
+      if ERROR_A == '':          
+        ERROR_A += 'You have to fill in all the fields. Please, try again.'
     # 302 redirect back to the main page
     headers = [('Location', '/'),
                ('Content-type', 'text/plain')]
@@ -305,21 +303,19 @@ def Delete(env, resp):
     global ERROR_B    
     input = env['wsgi.input']
     length = int(env.get('CONTENT_LENGTH', 0))
-   
-    if length > 0:
-        postdata = input.read(length)
-        fields = cgi.parse_qs(postdata)
-        if len(fields) == 1:
-          ID = fields['id'][0]
-          # check if the id contains only digits and is in the DB
-          if ID.isdigit() and testDB.IsInTable(ID):
-            # delete record with the ID
-            testDB.DeleteStudent(ID)
-            ERROR_B = ''
-          else:
-            ERROR_B = 'Student with submitted ID is not in this database.'
-        else:
-          ERROR_B = 'No ID was entered.'
+    postdata = input.read(length)
+    fields = cgi.parse_qs(postdata)
+    if len(fields) == 1:
+      ID = fields['id'][0]
+      # check if the id contains only digits and is in the DB
+      if ID.isdigit() and testDB.IsInTable(ID):
+        # delete record with the ID
+        testDB.DeleteStudent(ID)
+        ERROR_B = ''
+      else:
+        ERROR_B = 'Student with submitted ID is not in this database.'
+    else:
+      ERROR_B = 'No ID was entered.'
     # 302 redirect back to the main page
     headers = [('Location', '/'),
                ('Content-type', 'text/plain')]
@@ -330,25 +326,33 @@ def Delete(env, resp):
 def Enrol(env, resp):
     global ERROR_C    
     input = env['wsgi.input']
-    length = int(env.get('CONTENT_LENGTH', 0))
-   
-    if length > 0:
-        postdata = input.read(length)
-        fields = cgi.parse_qs(postdata)
-        if len(fields) == 2:
-          student_ID = fields['student'][0]
-          course = fields['course'][0][0:4]
-          # check if the id contains only digits and is in the DB
-          if student_ID.isdigit() and testDB.IsInTable(student_ID):
-            # insert data
-            testDB.CourseEnrolment(student_ID, course)
-            testDB.GetAllStudents()
-            ERROR_C = ''
-          else:
-            ERROR_C = 'Student with submitted ID is not in this database.'
+    length = int(env.get('CONTENT_LENGTH', 0))   
+    postdata = input.read(length)
+    fields = cgi.parse_qs(postdata)    
+
+    if len(fields) == 2:      
+      student_ID = fields['student'][0]
+      course = fields['course'][0][0:4]
+      course_name = fields['course'][0][5:]
+      student_courses = []
+      for row in allStudents:
+        if row['ID'] == student_ID:
+          student_courses = row['courses'].split(', ')
+          break
+      # check if the id contains only digits, is in the DB 
+      if student_ID.isdigit() and testDB.IsInTable(student_ID):
+        # check if the student is not enrolled for the selected course yet:
+        if course_name not in student_courses: 
+          # insert data        
+          testDB.CourseEnrolment(student_ID, course)
+          ERROR_C = ''
         else:
-          ERROR_C = 'No student ID was entered.'
-    testDB.GetAllStudents()
+          ERROR_C = 'Student with entered ID is already enrolled for this course.'
+      else:
+        ERROR_C = 'Student with submitted ID is not in this database.'
+    else:
+      ERROR_C = 'No student ID was entered.'
+
     # 302 redirect back to the main page
     headers = [('Location', '/'),
                ('Content-type', 'text/plain')]
@@ -359,24 +363,22 @@ def Update(env, resp):
   global ERROR_D    
   input = env['wsgi.input']
   length = int(env.get('CONTENT_LENGTH', 0))
-   
-  if length > 0:
-      postdata = input.read(length)
-      fields = cgi.parse_qs(postdata)
-      if len(fields) == 3:
-        student_ID = fields['stud_ID'][0]
-        column = fields['column'][0]
-        new_value = fields['new_value'][0]
-        
-        # check if the id contains only digits and is in the DB
-        if student_ID.isdigit() and testDB.IsInTable(student_ID):
-          # update data
-          testDB.UpdateStudentsData(student_ID, column, new_value)
-          ERROR_D = ''
-        else:
-          ERROR_D = 'Student with submitted ID is not in this database.'
-      else:
-        ERROR_D = 'Not all fields were filled in.'
+  postdata = input.read(length)
+  fields = cgi.parse_qs(postdata)
+  if len(fields) == 3:
+    student_ID = fields['stud_ID'][0]
+    column = fields['column'][0]
+    new_value = fields['new_value'][0]
+    
+    # check if the id contains only digits and is in the DB
+    if student_ID.isdigit() and testDB.IsInTable(student_ID):
+      # update data
+      testDB.UpdateStudentsData(student_ID, column, new_value)
+      ERROR_D = ''
+    else:
+      ERROR_D = 'Student with submitted ID is not in this database.'
+  else:
+    ERROR_D = 'Not all fields were filled in.'
 
   # 302 redirect back to the main page
   headers = [('Location', '/'),
