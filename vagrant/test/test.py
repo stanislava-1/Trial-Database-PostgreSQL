@@ -168,6 +168,10 @@ HTML_WRAP = '''\
               <h3>Number of All Students</h3>
               <p>%(num)s</p>
             </section>
+            <section class="part-stat">    
+              <h3>Average Age of Students</h3>
+              <p>%(avg)s</p>
+            </section>
           </div>
           <div class="col">
             <section class="part-stat">
@@ -213,7 +217,11 @@ ALL = '''\
     </tr>
 '''
 COUNT_ALL = '''\
-    All students: %s
+    %s students
+'''
+
+AVERAGE_AGE = '''\
+    %s years
 '''
 
 GENDER_COUNT = '''\
@@ -242,6 +250,7 @@ def View(env, resp):
     allStudents = testDB.GetAllStudents(orderBy)
     
     countAll = testDB.CountAll()
+    averageAge = int(testDB.AverageAge()[0])
     countGender = testDB.CountGender()
     countCountry = testDB.CountCountry()
     countEnrolments = testDB.CountEnrolments()
@@ -251,6 +260,7 @@ def View(env, resp):
 
     return [HTML_WRAP % {'all': ''.join(ALL % p for p in allStudents), 
                          'num': COUNT_ALL % countAll,
+                         'avg': AVERAGE_AGE % averageAge,
                          'gender': ''.join(GENDER_COUNT % p for p in countGender),
                          'country': ''.join(COUNTRY_COUNT % p for p in countCountry),
                          'courses': ''.join(ENROLMENTS_COUNT % p for p in countEnrolments),
