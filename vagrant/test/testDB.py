@@ -31,12 +31,14 @@ def GetAllStudents(orderBy):
 
     DB.close()
 
-    # Number of rows is now higher than number of students, becaouse students are enrolled for
-    # more than one course. Give all courses of one student into one row:
+    return GroupCourses(allStudents, r)
+
+# Group courses into one row by students
+def GroupCourses(selection, rows_count):
     allStudents_grouped = []
-    allStudents_grouped.append(allStudents.next()) 
-    for i in range(1, r):
-        evaluated = allStudents.next()
+    allStudents_grouped.append(selection.next()) 
+    for i in range(1, rows_count):
+        evaluated = selection.next()
         found = False
         for row in allStudents_grouped:        
             if evaluated['ID'] == row['ID']:
@@ -51,11 +53,11 @@ def GetAllStudents(orderBy):
     return allStudents_grouped
 
 # Insert new student to the table students
-def InsertNewStudent(first_name, last_name, gender, country):
+def InsertNewStudent(first_name, last_name, birthday, gender, country):
     DB = psycopg2.connect("dbname=test")
     c = DB.cursor()
-    c.execute("insert into students (first_name, last_name, gender, country) \
-               values (%s, %s, %s, %s)", (first_name, last_name, gender, country,))
+    c.execute("insert into students (first_name, last_name, birthday, gender, country) \
+               values (%s, %s, %s, %s, %s)", (first_name, last_name, birthday, gender, country,))
     DB.commit()
     DB.close()
 

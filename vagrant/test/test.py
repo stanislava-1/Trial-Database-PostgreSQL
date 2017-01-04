@@ -17,11 +17,11 @@ HTML_WRAP = '''\
     <style>
       body {margin: 0;}
       h1, h2, h3 {font-family: "Arial", Times New Roman;}      
-      h1 {color: white; background-color: grey; margin: 0; padding: 20px;}
-      h2 {margin: 0; padding: 10px; background-color: #a5d6a7}
+      h1 {color: white; background-color: grey; margin: 0; padding: 18px;}
+      h2 {margin: 0; padding: 8px; background-color: #a5d6a7}
       h3 {margin-top: 0}
       .content {padding: 20px;} 
-      .part {height: 180px; display: inline-block; vertical-align: top; margin: 10px 10px 0 0; 
+      .part {height: 230px; display: inline-block; vertical-align: top; margin: 10px 10px 0 0; 
              padding: 15px; background-color: #ddd;}
       .col {display: inline-block; vertical-align: top; margin: 10px 40px 0 0;}
       .part-stat {margin-bottom: 15px;}
@@ -86,6 +86,9 @@ HTML_WRAP = '''\
                   Last Name: <input type="text" name="last_name">
               </label><br>
               <label>
+                  Date of birth: <input type="date" name="birthday" min="1920-01-01" max="2001-12-31">
+              </label><br>
+              <label>
                   Gender: 
                   <select type="text" name="gender">
                       <option>male</option>
@@ -104,7 +107,7 @@ HTML_WRAP = '''\
             <h3>Delete Student</h2>
             <form method=post action="/deleted">
                <label>
-                  Insert ID of a student you want to delete:
+                  Insert ID of a student:
                   <input type="text" name="id" class="id">
               </label><br>
               <input type="submit" value="Delete Student">
@@ -115,7 +118,7 @@ HTML_WRAP = '''\
             <h3>Enrol Student for a Course</h2>
             <form method=post action="/enrolled">
                <label>
-                  Insert ID of a student you want to enrol for a course:
+                  Insert ID of a student:
                   <input type="text" name="student" class="id">
               </label><br>
               <label>
@@ -142,11 +145,11 @@ HTML_WRAP = '''\
             <h3>Update Student's Data</h2>
             <form method=post action="/updated">
                <label>
-                  Insert ID of a student you want to update:
+                  Insert ID of a student:
                   <input type="text" name="stud_ID" class="id">
               </label><br>
               <label>
-                  Select what kind of data you want to update:
+                  Select what you want to update:
                   <select type="text" name="column">
                       <option value="first_name">First Name</option>
                       <option value="last_name">Last Name</option>
@@ -318,13 +321,14 @@ def Insert(env, resp):
     postdata = input.read(length)
     fields = cgi.parse_qs(postdata)
     
-    if len(fields) == 4:
+    if len(fields) == 5:
       first_name = fields['first_name'][0]
       last_name = fields['last_name'][0]
+      birthday = fields['birthday'][0]
       gender = fields['gender'][0]
       country = fields['country'][0]    
       # Save new record in the database
-      testDB.InsertNewStudent(first_name, last_name, gender, country)
+      testDB.InsertNewStudent(first_name, last_name, birthday, gender, country)
       ERROR_A = ''
     else:
       if ERROR_A == '':          
