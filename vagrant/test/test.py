@@ -21,7 +21,7 @@ HTML_WRAP = '''\
       h2 {margin: 0; padding: 8px; background-color: #a5d6a7}
       h3 {margin-top: 0}
       .content {padding: 20px;} 
-      .part {height: 230px; min-width: 260px; display: inline-block; vertical-align: top; margin: 10px 10px 0 0; 
+      .part {height: 280px; min-width: 260px; max-width: 300px; display: inline-block; vertical-align: top; margin: 10px 10px 0 0; 
              padding: 15px; background-color: #ddd;}
       .col {display: inline-block; vertical-align: top; margin: 10px 40px 0 0;}
       .part-stat {margin-bottom: 15px;}
@@ -33,6 +33,7 @@ HTML_WRAP = '''\
       .ID {text-align: right;}
       .number {text-align: center;}
       .id {width: 30px;}
+      .error {margin: 0; color: red; font-size: 14px;}
       #select-info {margin-left: 20px;}
       #select-value {font-weight: bold; color: #43A047; text-decoration: underline;}
     </style>
@@ -86,7 +87,8 @@ HTML_WRAP = '''\
                   Last Name: <input type="text" name="last_name">
               </label><br>
               <label>
-                  Date of birth: <input type="date" name="birthday" min="1920-01-01" max="2001-12-31">
+                  Date of Birth: <input type="date" name="birthday" min="1920-01-01" max="2001-12-31"><br>
+                  <span style="font-size: 12px">Use <span style="color:red;font-size:13px;">YYYY-MM-DD</span> date format (and valid dates) in case you use Firefox or IE 11 (and earlier)</span><br>
               </label><br>
               <label>
                   Gender: 
@@ -101,7 +103,7 @@ HTML_WRAP = '''\
               </label><br>    
               <input type="submit" value="Insert Student">
             </form>
-            <p style="color:red">%(err_A)s</p>
+            <p class="error">%(err_A)s</p>
           </section>
           <section class="part">
             <h3>Delete Student</h2>
@@ -112,7 +114,7 @@ HTML_WRAP = '''\
               </label><br>
               <input type="submit" value="Delete Student">
             </form>
-            <p style="color:red">%(err_B)s</p>
+            <p class="error">%(err_B)s</p>
           </section>
           <section class="part">
             <h3>Enrol Student for a Course</h2>
@@ -139,7 +141,7 @@ HTML_WRAP = '''\
               </label><br>
               <input type="submit" value="Enrol">
             </form>
-            <p style="color:red">%(err_C)s</p>
+            <p class="error">%(err_C)s</p>
           </section>
           <section class="part">
             <h3>Update Student's Data</h2>
@@ -162,7 +164,7 @@ HTML_WRAP = '''\
               </label><br>
               <input type="submit" value="Update">
             </form>
-            <p style="color:red">%(err_D)s</p>
+            <p class="error">%(err_D)s</p>
           </section>
         </section>
       </section>
