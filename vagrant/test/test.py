@@ -33,6 +33,8 @@ HTML_WRAP = '''\
       .ID {text-align: right;}
       .number {text-align: center;}
       .id {width: 30px;}
+      #select-info {margin-left: 20px;}
+      #select-value {font-weight: bold; color: #43A047; text-decoration: underline;}
     </style>
   </head>
   <body>
@@ -44,7 +46,8 @@ HTML_WRAP = '''\
           <form method="post" action="/ordered">
             <label>
               <b>Order by:</b> 
-              <select name="order-by">
+              <select name="order-by" onchange="this.form.submit()">
+                <option value="students.id"></option>
                 <option value="students.id">ID</option>
                 <option value="students.last_name">Last Name</option>
                 <option value="students.birthday">Age</option>
@@ -53,7 +56,8 @@ HTML_WRAP = '''\
               </select>
             </label>
             <input type="submit" value="Order">
-          </form><br>
+            <span id="select-info">Ordered by <span id="select-value">%(sel)s</span></span>
+          </form><br>          
           <table>
             <tr class="b">
               <td class="ID">ID</td>
@@ -172,6 +176,14 @@ HTML_WRAP = '''\
               <h3>Average Age of Students</h3>
               <p>%(avg)s</p>
             </section>
+            <section class="part-stat">    
+              <h3>Age of the Youngest Student</h3>
+              <p>%(min)s</p>
+            </section>
+            <section class="part-stat">    
+              <h3>Age of the Oldest Student</h3>
+              <p>%(max)s</p>
+            </section>
           </div>
           <div class="col">
             <section class="part-stat">
@@ -204,7 +216,8 @@ HTML_WRAP = '''\
 </html>
 '''
 
-# HTML templates for the results and errors
+# HTML templates for results and errors
+SELECTED = "ID"
 ALL = '''\
     <tr>
         <td class="ID">%(ID)s</td>
@@ -219,11 +232,15 @@ ALL = '''\
 COUNT_ALL = '''\
     %s students
 '''
-
 AVERAGE_AGE = '''\
     %s years
 '''
-
+MIN_AGE = '''\
+    %s years
+'''
+MAX_AGE = '''\
+    %s years
+'''
 GENDER_COUNT = '''\
     <tr><td>%(gender)s:</td> <td class="number">%(count)s</td></tr>
 '''
@@ -251,6 +268,8 @@ def View(env, resp):
     
     countAll = testDB.CountAll()
     averageAge = int(testDB.AverageAge()[0])
+    minAge = int(testDB.Youngest()[0])
+    maxAge = int(testDB.Oldest()[0])
     countGender = testDB.CountGender()
     countCountry = testDB.CountCountry()
     countEnrolments = testDB.CountEnrolments()
@@ -258,9 +277,12 @@ def View(env, resp):
     headers = [('Content-type', 'text/html')]
     resp('200 OK', headers)
 
-    return [HTML_WRAP % {'all': ''.join(ALL % p for p in allStudents), 
+    return [HTML_WRAP % {'sel': SELECTED,
+                         'all': ''.join(ALL % p for p in allStudents),  
                          'num': COUNT_ALL % countAll,
                          'avg': AVERAGE_AGE % averageAge,
+                         'min': MIN_AGE % minAge,
+                         'max': MAX_AGE % maxAge,
                          'gender': ''.join(GENDER_COUNT % p for p in countGender),
                          'country': ''.join(COUNTRY_COUNT % p for p in countCountry),
                          'courses': ''.join(ENROLMENTS_COUNT % p for p in countEnrolments),
@@ -271,14 +293,16 @@ def View(env, resp):
 
 # Order list of students by selected column
 def Order(env, resp):
-    global orderBy
+    global orderBy, SELECTED
     input = env['wsgi.input']
     length = int(env.get('CONTENT_LENGTH', 0))
-
     postdata = input.read(length)
     fields = cgi.parse_qs(postdata)
-    
+    column_names = {'students.id': 'ID', 'students.last_name': 'Last Name', 
+                    'students.birthday': 'Age', 'students.gender': 'Gender',
+                    'students.country': 'Country'}
     orderBy = fields['order-by'][0]
+    SELECTED = column_names[orderBy]
 
     # 302 redirect back to the main page
     headers = [('Location', '/'),

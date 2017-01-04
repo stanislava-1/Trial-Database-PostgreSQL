@@ -104,6 +104,7 @@ def CountAll():
     DB.close()
     return count
 
+# Find the average age of students
 def AverageAge():
     DB = psycopg2.connect("dbname=test")
     c = DB.cursor()
@@ -111,6 +112,24 @@ def AverageAge():
     averageAge = c.fetchone()
     DB.close()
     return averageAge
+
+# Find the age of the youngest student
+def Youngest():
+    DB = psycopg2.connect("dbname=test")
+    c = DB.cursor()
+    c.execute("select min(date_part('year', age(birthday))) from students")
+    minAge = c.fetchone()
+    DB.close()
+    return minAge
+
+# Find the age of the oldest student
+def Oldest():
+    DB = psycopg2.connect("dbname=test")
+    c = DB.cursor()
+    c.execute("select max(date_part('year', age(birthday))) from students")
+    maxAge = c.fetchone()
+    DB.close()
+    return maxAge
 
 # Count how many of the students are males and how many of them are females
 def CountGender():
