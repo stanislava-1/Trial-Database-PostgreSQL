@@ -21,7 +21,7 @@ HTML_WRAP = '''\
       h2 {margin: 0; padding: 8px; background-color: #a5d6a7}
       h3 {margin-top: 0}
       .content {padding: 20px;} 
-      .part {height: 230px; display: inline-block; vertical-align: top; margin: 10px 10px 0 0; 
+      .part {height: 230px; min-width: 260px; display: inline-block; vertical-align: top; margin: 10px 10px 0 0; 
              padding: 15px; background-color: #ddd;}
       .col {display: inline-block; vertical-align: top; margin: 10px 40px 0 0;}
       .part-stat {margin-bottom: 15px;}
@@ -190,6 +190,15 @@ HTML_WRAP = '''\
           </div>
           <div class="col">
             <section class="part-stat">
+              <h3>Number of Students by Age</h3>
+              <table>
+                <tr class="b"><td>Age Interval</td><td>Students</td></tr>
+                %(age)s
+              </table>
+            </section> 
+          </div>
+          <div class="col">
+            <section class="part-stat">
               <h3>Number of Students by Gender</h3>
               <table>
                 <tr class="b"><td>Gender</td><td>Students</td></tr>
@@ -244,6 +253,9 @@ MIN_AGE = '''\
 MAX_AGE = '''\
     %s years
 '''
+AGE_COUNT = '''\
+    <tr><td>%(age_interval)s:</td> <td class="number">%(count)s</td></tr>
+'''
 GENDER_COUNT = '''\
     <tr><td>%(gender)s:</td> <td class="number">%(count)s</td></tr>
 '''
@@ -273,6 +285,7 @@ def View(env, resp):
     averageAge = int(testDB.AverageAge()[0])
     minAge = int(testDB.Youngest()[0])
     maxAge = int(testDB.Oldest()[0])
+    countAge = testDB.CountAge()
     countGender = testDB.CountGender()
     countCountry = testDB.CountCountry()
     countEnrolments = testDB.CountEnrolments()
@@ -286,6 +299,7 @@ def View(env, resp):
                          'avg': AVERAGE_AGE % averageAge,
                          'min': MIN_AGE % minAge,
                          'max': MAX_AGE % maxAge,
+                         'age': ''.join(AGE_COUNT % p for p in countAge),
                          'gender': ''.join(GENDER_COUNT % p for p in countGender),
                          'country': ''.join(COUNTRY_COUNT % p for p in countCountry),
                          'courses': ''.join(ENROLMENTS_COUNT % p for p in countEnrolments),

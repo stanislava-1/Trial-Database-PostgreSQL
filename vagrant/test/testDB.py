@@ -133,6 +133,37 @@ def Oldest():
     DB.close()
     return maxAge
 
+# Count how many students belong to determined age intervals
+def CountAge():
+    DB = psycopg2.connect("dbname=test")
+    c = DB.cursor()
+    c.execute("select date_part('year', age(birthday)) from students")
+    ages = c.fetchall()
+    DB.close()
+    # define age intervals
+    age_intervals = ["15 - 20 years", "21 - 30 years", "31 - 40 years", 
+                     "41 - 50 years", "51 - 60 years", "61 and more years"]
+    # prepare data structure for storing age intervals and number of students belonging to them
+    age_intervals_count = []
+    for interval in age_intervals:
+        age_intervals_count.append({"age_interval": interval, "count": 0})
+    # count how many students belong to particular age intervals
+    for row in ages:
+        if (int(row[0])<21):
+            age_intervals_count[0]["count"] += 1
+        elif (int(row[0])>20) and (int(row[0])<31):
+            age_intervals_count[1]["count"] += 1
+        elif (int(row[0])>30) and (int(row[0])<41):
+            age_intervals_count[2]["count"] += 1
+        elif (int(row[0])>40) and (int(row[0])<51):
+            age_intervals_count[3]["count"] += 1
+        elif (int(row[0])>50) and (int(row[0])<61):
+            age_intervals_count[4]["count"] += 1
+        else:
+            age_intervals_count[5]["count"] += 1
+    
+    return age_intervals_count
+
 # Count how many of the students are males and how many of them are females
 def CountGender():
     DB = psycopg2.connect("dbname=test")
