@@ -8,227 +8,7 @@ from wsgiref.simple_server import make_server
 from wsgiref import util
 
 # HTML template for the page
-HTML_WRAP = '''\
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>test DB</title>
-    <meta charset="UTF-8">
-    <style>
-      body {margin: 0;}
-      h1, h2, h3 {font-family: "Arial", Times New Roman;}      
-      h1 {color: white; background-color: grey; margin: 0; padding: 18px;}
-      h2 {margin: 0; padding: 8px; background-color: #a5d6a7}
-      h3 {margin-top: 0}
-      .content {padding: 20px;} 
-      .part {height: 280px; min-width: 260px; max-width: 300px; display: inline-block; vertical-align: top; margin: 10px 10px 0 0; 
-             padding: 15px; background-color: #ddd;}
-      .col {display: inline-block; vertical-align: top; margin: 10px 40px 0 0;}
-      .part-stat {margin-bottom: 15px;}
-      input, select {margin-bottom: 7px;}
-      table {border-collapse: collapse;}
-      td {padding-right: 20px;}
-      td, tr {border-bottom: 1px solid #ddd;}
-      .b {font-weight: bold;}
-      .ID {text-align: right;}
-      .number {text-align: center;}
-      .id {width: 30px;}
-      .error {margin: 0; color: red; font-size: 14px;}
-      #select-info {margin-left: 20px;}
-      #select-value {font-weight: bold; color: #43A047; text-decoration: underline;}
-    </style>
-  </head>
-  <body>
-    <h1>Test DB - Database of Students</h1>
-    
-      <section id="DB-all">
-        <h2>List of students</h2>
-        <section class="content">
-          <form method="post" action="/ordered">
-            <label>
-              <b>Order by:</b> 
-              <select name="order-by" onchange="this.form.submit()">
-                <option value="students.id"></option>
-                <option value="students.id">ID</option>
-                <option value="students.last_name">Last Name</option>
-                <option value="students.birthday">Age</option>
-                <option value="students.gender">Gender</option>
-                <option value="students.country">Country</option>
-              </select>
-            </label>
-            <input type="submit" value="Order">
-            <span id="select-info">Ordered by <span id="select-value">%(sel)s</span></span>
-          </form><br>          
-          <table>
-            <tr class="b">
-              <td class="ID">ID</td>
-              <td>First Name</td>
-              <td>Last Name</td>
-              <td>Age</td>
-              <td>Gender</td>
-              <td>Country</td>
-              <td>Courses</td>
-            </tr>
-            %(all)s
-          </table>
-        </section>
-      </section>
-
-      <section id="DB-manipulation">
-        <h2>Database Manipulation</h2>
-        <section class="content">   
-          <section class="part">
-            <h3>Insert New Student</h2>
-            <form method=post action="/inserted">
-              <label>
-                  First Name: <input type="text" name="first_name">
-              </label><br>
-              <label>
-                  Last Name: <input type="text" name="last_name">
-              </label><br>
-              <label>
-                  Date of Birth: <input type="date" name="birthday" min="1920-01-01" max="2001-12-31"><br>
-                  <span style="font-size: 12px">Use <span style="color:red;font-size:13px;">YYYY-MM-DD</span> date format (and valid dates) in case you use Firefox or IE 11 (and earlier)</span><br>
-              </label><br>
-              <label>
-                  Gender: 
-                  <select type="text" name="gender">
-                      <option>male</option>
-                      <option>female</option>
-                  </select>
-              </label><br>
-              <label>
-                  Country:
-                  <input type="text" name="country">
-              </label><br>    
-              <input type="submit" value="Insert Student">
-            </form>
-            <p class="error">%(err_A)s</p>
-          </section>
-          <section class="part">
-            <h3>Delete Student</h2>
-            <form method=post action="/deleted">
-               <label>
-                  Insert ID of a student:
-                  <input type="text" name="id" class="id">
-              </label><br>
-              <input type="submit" value="Delete Student">
-            </form>
-            <p class="error">%(err_B)s</p>
-          </section>
-          <section class="part">
-            <h3>Enrol Student for a Course</h2>
-            <form method=post action="/enrolled">
-               <label>
-                  Insert ID of a student:
-                  <input type="text" name="student" class="id">
-              </label><br>
-              <label>
-                  Select Course:
-                  <select type="text" name="course">
-                      <option>C001-History</option>
-                      <option>C002-Mathematics</option>
-                      <option>C003-Computer Science</option>
-                      <option>C004-Slovak Language</option>
-                      <option>C005-Chemistry</option>
-                      <option>C006-Physics</option>
-                      <option>C007-English Language</option>
-                      <option>C008-Journalism</option>
-                      <option>C009-Painting</option>
-                      <option>C010-Music Theory</option>
-                      <option>C011-Creative Writing</option>
-                  </select>
-              </label><br>
-              <input type="submit" value="Enrol">
-            </form>
-            <p class="error">%(err_C)s</p>
-          </section>
-          <section class="part">
-            <h3>Update Student's Data</h2>
-            <form method=post action="/updated">
-               <label>
-                  Insert ID of a student:
-                  <input type="text" name="stud_ID" class="id">
-              </label><br>
-              <label>
-                  Select what you want to update:
-                  <select type="text" name="column">
-                      <option value="first_name">First Name</option>
-                      <option value="last_name">Last Name</option>
-                      <option value="country">Country</option>
-                  </select>
-              </label><br>
-              <label>
-                  Enter new value:
-                  <input type="text" name="new_value">
-              </label><br>
-              <input type="submit" value="Update">
-            </form>
-            <p class="error">%(err_D)s</p>
-          </section>
-        </section>
-      </section>
-      
-      <section id="DB-statistics">
-        <h2>Database Statistics</h2>
-        <section class="content">
-          <div class="col">
-            <section class="part-stat">    
-              <h3>Number of All Students</h3>
-              <p>%(num)s</p>
-            </section>
-            <section class="part-stat">    
-              <h3>Average Age of Students</h3>
-              <p>%(avg)s</p>
-            </section>
-            <section class="part-stat">    
-              <h3>Age of the Youngest Student</h3>
-              <p>%(min)s</p>
-            </section>
-            <section class="part-stat">    
-              <h3>Age of the Oldest Student</h3>
-              <p>%(max)s</p>
-            </section>
-          </div>
-          <div class="col">
-            <section class="part-stat">
-              <h3>Number of Students by Age</h3>
-              <table>
-                <tr class="b"><td>Age Interval</td><td>Students</td></tr>
-                %(age)s
-              </table>
-            </section> 
-          </div>
-          <div class="col">
-            <section class="part-stat">
-              <h3>Number of Students by Gender</h3>
-              <table>
-                <tr class="b"><td>Gender</td><td>Students</td></tr>
-                %(gender)s
-              </table>
-            </section>          
-            <section class="part-stat">
-              <h3>Number of Students by Country</h3>
-              <table>
-                <tr class="b"><td>Country</td><td>Students</td></tr>
-                %(country)s
-              </table>
-            </section>
-          </div>
-          <div class="col">
-            <section class="part-stat">
-              <h3>Number of Students Enrolled for Courses</h3>
-              <table>
-                <tr class="b"><td>Course</td><td>Students</td></tr>
-                %(courses)s
-              </table>
-            </section>
-          </div>
-        </section>
-      </section>
-  </body>
-</html>
-'''
+HTML_WRAP = open('index.html').read()
 
 # HTML templates for results and errors
 SELECTED = "ID"
@@ -276,6 +56,8 @@ ERROR_C = ''
 
 ERROR_D = ''
 
+ERROR_E = ''
+
 orderBy = "students.id"
 
 # Request handler for main page
@@ -308,7 +90,8 @@ def View(env, resp):
                          'err_A': ERROR_A, 
                          'err_B': ERROR_B,
                          'err_C': ERROR_C,
-                         'err_D': ERROR_D}]
+                         'err_D': ERROR_D,
+                         'err_E': ERROR_E}]
 
 # Order list of students by selected column
 def Order(env, resp):
@@ -331,7 +114,7 @@ def Order(env, resp):
 
 # Insert student's data to the table students
 def Insert(env, resp):
-    global ERROR_A
+    global ERROR_A, ERROR_B, ERROR_C, ERROR_D, ERROR_E
     input = env['wsgi.input']
     length = int(env.get('CONTENT_LENGTH', 0))
     postdata = input.read(length)
@@ -349,6 +132,8 @@ def Insert(env, resp):
     else:
       if ERROR_A == '':          
         ERROR_A += 'You have to fill in all the fields. Please, try again.'
+
+    ERROR_B = ERROR_C = ERROR_D = ERROR_E = '' 
     # 302 redirect back to the main page
     headers = [('Location', '/'),
                ('Content-type', 'text/plain')]
@@ -357,7 +142,7 @@ def Insert(env, resp):
 
 # Delete student's data from database
 def Delete(env, resp):
-    global ERROR_B    
+    global ERROR_A, ERROR_B, ERROR_C, ERROR_D, ERROR_E 
     input = env['wsgi.input']
     length = int(env.get('CONTENT_LENGTH', 0))
     postdata = input.read(length)
@@ -373,6 +158,8 @@ def Delete(env, resp):
         ERROR_B = 'Student with submitted ID is not in this database.'
     else:
       ERROR_B = 'No ID was entered.'
+
+    ERROR_A = ERROR_C = ERROR_D = ERROR_E = '' 
     # 302 redirect back to the main page
     headers = [('Location', '/'),
                ('Content-type', 'text/plain')]
@@ -381,7 +168,7 @@ def Delete(env, resp):
 
 # Insert student's enrolment to the table enrolments
 def Enrol(env, resp):
-    global ERROR_C    
+    global ERROR_A, ERROR_B, ERROR_C, ERROR_D, ERROR_E  
     input = env['wsgi.input']
     length = int(env.get('CONTENT_LENGTH', 0))   
     postdata = input.read(length)
@@ -409,6 +196,46 @@ def Enrol(env, resp):
         ERROR_C = 'Student with submitted ID is not in this database.'
     else:
       ERROR_C = 'No student ID was entered.'
+    
+    ERROR_A = ERROR_B = ERROR_D = ERROR_E = '' 
+    # 302 redirect back to the main page
+    headers = [('Location', '/'),
+               ('Content-type', 'text/plain')]
+    resp('302 REDIRECT', headers) 
+    return ['Redirecting']
+
+# Delete studet's enrolment for a course from the table enrolments
+def Cancel_Enrol(env, resp):
+    global ERROR_A, ERROR_B, ERROR_C, ERROR_D, ERROR_E   
+    input = env['wsgi.input']
+    length = int(env.get('CONTENT_LENGTH', 0))   
+    postdata = input.read(length)
+    fields = cgi.parse_qs(postdata)    
+
+    if len(fields) == 2:      
+      student_ID = fields['student'][0]
+      course = fields['course'][0][0:4]
+      course_name = fields['course'][0][5:]
+      student_courses = []
+      for row in allStudents:
+        if row['ID'] == student_ID:
+          student_courses = row['courses'].split(', ')
+          break
+      # check if the id contains only digits, is in the DB 
+      if student_ID.isdigit() and testDB.IsInTable(student_ID):
+        # check if the student is not enrolled for the selected course yet:
+        if course_name in student_courses: 
+          # insert data        
+          testDB.CancelEnrolment(student_ID, course)
+          ERROR_D = ''
+        else:
+          ERROR_D = 'Student with entered ID is not enrolled for this course.'
+      else:
+        ERROR_D = 'Student with submitted ID is not in this database.'
+    else:
+      ERROR_D = 'No student ID was entered.'
+
+    ERROR_A = ERROR_B = ERROR_C = ERROR_E = '' 
 
     # 302 redirect back to the main page
     headers = [('Location', '/'),
@@ -416,32 +243,34 @@ def Enrol(env, resp):
     resp('302 REDIRECT', headers) 
     return ['Redirecting']
 
+# Update student's record in the table student
 def Update(env, resp):
-  global ERROR_D    
-  input = env['wsgi.input']
-  length = int(env.get('CONTENT_LENGTH', 0))
-  postdata = input.read(length)
-  fields = cgi.parse_qs(postdata)
-  if len(fields) == 3:
-    student_ID = fields['stud_ID'][0]
-    column = fields['column'][0]
-    new_value = fields['new_value'][0]
-    
-    # check if the id contains only digits and is in the DB
-    if student_ID.isdigit() and testDB.IsInTable(student_ID):
-      # update data
-      testDB.UpdateStudentsData(student_ID, column, new_value)
-      ERROR_D = ''
+    global ERROR_A, ERROR_B, ERROR_C, ERROR_D, ERROR_E   
+    input = env['wsgi.input']
+    length = int(env.get('CONTENT_LENGTH', 0))
+    postdata = input.read(length)
+    fields = cgi.parse_qs(postdata)
+    if len(fields) == 3:
+      student_ID = fields['stud_ID'][0]
+      column = fields['column'][0]
+      new_value = fields['new_value'][0]
+      
+      # check if the id contains only digits and is in the DB
+      if student_ID.isdigit() and testDB.IsInTable(student_ID):
+        # update data
+        testDB.UpdateStudentsData(student_ID, column, new_value)
+        ERROR_E = ''
+      else:
+        ERROR_E = 'Student with submitted ID is not in this database.'
     else:
-      ERROR_D = 'Student with submitted ID is not in this database.'
-  else:
-    ERROR_D = 'Not all fields were filled in.'
-
-  # 302 redirect back to the main page
-  headers = [('Location', '/'),
-             ('Content-type', 'text/plain')]
-  resp('302 REDIRECT', headers) 
-  return ['Redirecting'] 
+      ERROR_E = 'Not all fields were filled in.'
+    
+    ERROR_A = ERROR_B = ERROR_C = ERROR_D = '' 
+    # 302 redirect back to the main page
+    headers = [('Location', '/'),
+               ('Content-type', 'text/plain')]
+    resp('302 REDIRECT', headers) 
+    return ['Redirecting'] 
 
 
 # Dispatch table - maps URL prefixes to request handlers
@@ -450,7 +279,8 @@ DISPATCH = {'': View,
             'inserted': Insert,
             'deleted': Delete,
             'enrolled': Enrol,
-            'updated': Update
+            'updated': Update,
+            'enrl-cancelled': Cancel_Enrol
         }
 
 ## Dispatcher forwards requests according to the DISPATCH table.

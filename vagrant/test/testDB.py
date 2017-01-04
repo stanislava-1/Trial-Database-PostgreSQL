@@ -57,7 +57,8 @@ def InsertNewStudent(first_name, last_name, birthday, gender, country):
     DB = psycopg2.connect("dbname=test")
     c = DB.cursor()
     c.execute("insert into students (first_name, last_name, birthday, gender, country) \
-               values (%s, %s, %s, %s, %s)", (first_name, last_name, birthday, gender, country,))
+               values (%s, %s, %s, %s, %s)", 
+               (first_name, last_name, birthday, gender, country,))
     DB.commit()
     DB.close()
 
@@ -85,6 +86,15 @@ def CourseEnrolment(student_id, course_id):
     DB = psycopg2.connect("dbname=test")
     c = DB.cursor()
     c.execute("insert into enrolments values (%s, %s)", (student_id, course_id,))
+    DB.commit()
+    DB.close()
+
+# Cancel student's enrolment for a course
+def CancelEnrolment(student_id, course_id):
+    DB = psycopg2.connect("dbname=test")
+    c = DB.cursor()
+    c.execute("delete from enrolments where student_id=%s and course_id=%s", 
+               (student_id, course_id,))
     DB.commit()
     DB.close()
 

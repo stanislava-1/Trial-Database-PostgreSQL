@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>test DB</title>
+    <meta charset="UTF-8">
+    <style>
+      body {margin: 0;}
+      h1, h2, h3 {font-family: "Arial", Times New Roman;}      
+      h1 {color: white; background-color: grey; margin: 0; padding: 16px;}
+      h2 {margin: 0; padding: 8px 20px; background-color: #a5d6a7;}
+      h3 {margin-top: 0}
+      .content {padding: 23px;} 
+      .part {height: 280px; min-width: 260px; max-width: 320px; display: inline-block; vertical-align: top; margin: 10px 10px 0 0; 
+             padding: 15px; background-color: #ddd;}
+      .col {display: inline-block; vertical-align: top; margin: 10px 40px 0 0;}
+      .part-stat {margin-bottom: 15px;}
+      input, select {margin-bottom: 7px;}
+      table {border-collapse: collapse;}
+      td {padding-right: 20px;}
+      td, tr {border-bottom: 1px solid #ddd;}
+      .b {font-weight: bold;}
+      .ID {text-align: right;}
+      .number {text-align: center;}
+      .id {width: 30px;}
+      .error {margin: 0; color: red; font-size: 14px;}
+      #select-info {margin-left: 20px;}
+      #select-value {font-weight: bold; color: #43A047; text-decoration: underline;}
+    </style>
+  </head>
+  <body>
+    <h1>Test DB - Database of Students</h1>
+    
+      <section id="DB-all">
+        <h2>List of students</h2>
+        <section class="content">
+          <form method="post" action="/ordered">
+            <label>
+              <b>Order by:</b> 
+              <select name="order-by" onchange="this.form.submit()">
+                <option value="students.id"></option>
+                <option value="students.id">ID</option>
+                <option value="students.last_name">Last Name</option>
+                <option value="students.birthday">Age</option>
+                <option value="students.gender">Gender</option>
+                <option value="students.country">Country</option>
+              </select>
+            </label>
+            <input type="submit" value="Order">
+            <span id="select-info">Ordered by <span id="select-value">%(sel)s</span></span>
+          </form><br>          
+          <table>
+            <tr class="b">
+              <td class="ID">ID</td>
+              <td>First Name</td>
+              <td>Last Name</td>
+              <td>Age</td>
+              <td>Gender</td>
+              <td>Country</td>
+              <td>Courses</td>
+            </tr>
+            %(all)s
+          </table>
+        </section>
+      </section>
+
+      <section id="DB-manipulation">
+        <h2>Database Manipulation</h2>
+        <section class="content">   
+          <section class="part">
+            <h3>Insert New Student</h2>
+            <form method=post action="/inserted">
+              <label>
+                  First Name: <input type="text" name="first_name">
+              </label><br>
+              <label>
+                  Last Name: <input type="text" name="last_name">
+              </label><br>
+              <label>
+                  Date of Birth: <input type="date" name="birthday" min="1920-01-01" max="2001-12-31"><br>
+                  <span style="font-size: 12px">Use <span style="color:red;font-size:13px;">YYYY-MM-DD</span> date format (and valid dates) in case you use Firefox or IE 11 (and earlier)</span><br>
+              </label><br>
+              <label>
+                  Gender: 
+                  <select type="text" name="gender">
+                      <option>male</option>
+                      <option>female</option>
+                  </select>
+              </label><br>
+              <label>
+                  Country:
+                  <input type="text" name="country">
+              </label><br>    
+              <input type="submit" value="Insert Student">
+            </form>
+            <p class="error">%(err_A)s</p>
+          </section>
+          <section class="part">
+            <h3>Delete Student</h2>
+            <form method=post action="/deleted">
+               <label>
+                  Insert ID of a student:
+                  <input type="text" name="id" class="id">
+              </label><br>
+              <input type="submit" value="Delete Student">
+            </form>
+            <p class="error">%(err_B)s</p>
+          </section>
+          <section class="part">
+            <h3>Enrol Student for a Course</h2>
+            <form method=post action="/enrolled">
+               <label>
+                  Insert ID of a student:
+                  <input type="text" name="student" class="id">
+              </label><br>
+              <label>
+                  Select Course:
+                  <select type="text" name="course">
+                      <option>C001-History</option>
+                      <option>C002-Mathematics</option>
+                      <option>C003-Computer Science</option>
+                      <option>C004-Slovak Language</option>
+                      <option>C005-Chemistry</option>
+                      <option>C006-Physics</option>
+                      <option>C007-English Language</option>
+                      <option>C008-Journalism</option>
+                      <option>C009-Painting</option>
+                      <option>C010-Music Theory</option>
+                      <option>C011-Creative Writing</option>
+                  </select>
+              </label><br>
+              <input type="submit" value="Enrol">
+            </form>
+            <p class="error">%(err_C)s</p>
+            <br>
+            <h3>Cancel Enrolment</h2>
+            <form method=post action="/enrl-cancelled">
+               <label>
+                  Insert ID of a student:
+                  <input type="text" name="student" class="id">
+              </label><br>
+              <label>
+                  Select Course:
+                  <select type="text" name="course">
+                      <option>C001-History</option>
+                      <option>C002-Mathematics</option>
+                      <option>C003-Computer Science</option>
+                      <option>C004-Slovak Language</option>
+                      <option>C005-Chemistry</option>
+                      <option>C006-Physics</option>
+                      <option>C007-English Language</option>
+                      <option>C008-Journalism</option>
+                      <option>C009-Painting</option>
+                      <option>C010-Music Theory</option>
+                      <option>C011-Creative Writing</option>
+                  </select>
+              </label><br>
+              <input type="submit" value="Cancel Enrolment">
+            </form>
+            <p class="error">%(err_D)s</p>
+          </section>
+          <section class="part">
+            <h3>Update Student's Data</h2>
+            <form method=post action="/updated">
+               <label>
+                  Insert ID of a student:
+                  <input type="text" name="stud_ID" class="id">
+              </label><br>
+              <label>
+                  Select what you want to update:
+                  <select type="text" name="column">
+                      <option value="first_name">First Name</option>
+                      <option value="last_name">Last Name</option>
+                      <option value="country">Country</option>
+                  </select>
+              </label><br>
+              <label>
+                  Enter new value:
+                  <input type="text" name="new_value">
+              </label><br>
+              <input type="submit" value="Update">
+            </form>
+            <p class="error">%(err_E)s</p>
+          </section>
+        </section>
+      </section>
+      
+      <section id="DB-statistics">
+        <h2>Database Statistics</h2>
+        <section class="content">
+          <div class="col">
+            <section class="part-stat">    
+              <h3>Number of All Students</h3>
+              <p>%(num)s</p>
+            </section>
+            <section class="part-stat">    
+              <h3>Average Age of Students</h3>
+              <p>%(avg)s</p>
+            </section>
+            <section class="part-stat">    
+              <h3>Age of the Youngest Student</h3>
+              <p>%(min)s</p>
+            </section>
+            <section class="part-stat">    
+              <h3>Age of the Oldest Student</h3>
+              <p>%(max)s</p>
+            </section>
+          </div>
+          <div class="col">
+            <section class="part-stat">
+              <h3>Number of Students by Age</h3>
+              <table>
+                <tr class="b"><td>Age Interval</td><td>Students</td></tr>
+                %(age)s
+              </table>
+            </section> 
+          </div>
+          <div class="col">
+            <section class="part-stat">
+              <h3>Number of Students by Gender</h3>
+              <table>
+                <tr class="b"><td>Gender</td><td>Students</td></tr>
+                %(gender)s
+              </table>
+            </section>          
+            <section class="part-stat">
+              <h3>Number of Students by Country</h3>
+              <table>
+                <tr class="b"><td>Country</td><td>Students</td></tr>
+                %(country)s
+              </table>
+            </section>
+          </div>
+          <div class="col">
+            <section class="part-stat">
+              <h3>Number of Students Enrolled for Courses</h3>
+              <table>
+                <tr class="b"><td>Course</td><td>Students</td></tr>
+                %(courses)s
+              </table>
+            </section>
+          </div>
+        </section>
+      </section>
+  </body>
+</html>
