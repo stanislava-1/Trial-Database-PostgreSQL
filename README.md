@@ -1,7 +1,7 @@
 # Trial-Database-PostgreSQL
 
 My trial database project using PostgreSQL + Python. The database stores data about imaginary students and the application allows to enter data, delete data, order data and see the database statistics.
-To see the application and try how it works, you have to run it on localhost.
+To see the application and test how it works, you have to run it on localhost.
 Here are the steps, how to do it:
 
 1.	Install Virtual Box: https://www.virtualbox.org/wiki/Downloads
