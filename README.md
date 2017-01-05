@@ -24,4 +24,5 @@ Here are the steps, how to do it:
     This should be shown after that: 
     Serving HTTP on port 8000...
 13.	Now write to your browser: localhost:8000
+
     The application should open.
